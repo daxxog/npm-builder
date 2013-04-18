@@ -1,0 +1,30 @@
+{
+    "name"        : "npm-builder",
+    "description" : "Stop the copy paste madness. Set up your repo with one command.",
+    "homepage"    : "https://github.com/daxxog/npm-builder",
+    "main"        : "npm-builder.js",
+    "version"     : "0.0.1",
+    "engines": { "node" : ">=0.7.0" },
+    "maintainers": [{
+        "name"  : "David Volm",
+        "email" : "david@volminator.com",
+        "web"   : "http://daxxog.com/"
+    }],
+    "repositories": [{
+        "type" : "git",
+        "url"  : "https://github.com/daxxog/npm-builder.git"
+    }],
+    "dependencies": {
+        "string": "*",
+        "switch-factory": "*",
+        "file": "*",
+        "mustache": "*",
+        "glob": "*",
+        "async": "*",
+        "request": "*",
+        "spawn": "*"
+    },
+    "bin": {
+        "npm-builder" : "./bin/npm-builder"
+    }
+}
