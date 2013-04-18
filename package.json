@@ -3,7 +3,7 @@
     "description" : "Stop the copy paste madness. Set up your repo with one command.",
     "homepage"    : "https://github.com/daxxog/npm-builder",
     "main"        : "npm-builder.js",
-    "version"     : "0.0.1",
+    "version"     : "0.0.2",
     "engines": { "node" : ">=0.7.0" },
     "maintainers": [{
         "name"  : "David Volm",
@@ -21,8 +21,7 @@
         "mustache": "*",
         "glob": "*",
         "async": "*",
-        "request": "*",
-        "spawn": "*"
+        "request": "*"
     },
     "bin": {
         "npm-builder" : "./bin/npm-builder"
