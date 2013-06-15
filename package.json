@@ -3,7 +3,7 @@
     "description" : "Stop the copy paste madness. Set up your repo with one command.",
     "homepage"    : "https://github.com/daxxog/npm-builder",
     "main"        : "npm-builder.js",
-    "version"     : "0.0.4",
+    "version"     : "0.0.5",
     "engines": { "node" : ">=0.7.0" },
     "maintainers": [{
         "name"  : "David Volm",

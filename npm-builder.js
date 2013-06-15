@@ -40,9 +40,10 @@ if(argv.help) {
 } else {
     var rdMe = S(fs.readFileSync('README.md', 'utf8')).lines(),
         template = {
-            name: rdMe[0],
-            description: rdMe[3],
-            user: argv.u
+            "name": rdMe[0],
+            "Name": S(rdMe[0]).camelize().capitalize().s, //1337 name
+            "description": rdMe[3],
+            "user": argv.u
         },
         req = request(tarball),
         tar = spawn('tar', ['-zx']);
