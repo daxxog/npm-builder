@@ -41,7 +41,10 @@ if(argv.help) {
     var rdMe = S(fs.readFileSync('README.md', 'utf8')).lines(),
         template = {
             "name": rdMe[0],
-            "Name": S(rdMe[0]).camelize().capitalize().s, //1337 name
+            "Name": (function(str) {
+                var f = str.charAt(0).toUpperCase();
+                return f + str.substr(1);
+            })(S(rdMe[0]).camelize().s), //1337 name
             "description": rdMe[3],
             "user": argv.u
         },
