@@ -54,6 +54,14 @@ if(argv.help) {
     tar.on('exit', function(code) {
         if(code === 0) {
             fs.readdir('.', function(err, files) {
+                files = (function(files) { //scrub garbage from folder
+                    var scrub = sf.is(['.DS_Store', 'Thumbs.db']); //stuff to scrub
+
+                    return files.filter(function(file) {
+                        return !scrub(file);
+                    });
+                })(files);
+
                 if(!err && files.length === 3) {
                     async.each(glob('*/*', {sync: true}), function(file, cb) {
                         var cp = spawn('cp', ['-r', file, '.']);
@@ -139,7 +147,7 @@ if(argv.help) {
                         }
                     });
                 } else {
-                    console.error('Error: ', err, 'Files length is ' + files.length);
+                    console.error('Error: ', err, 'Files length is ' + files.length, files);
                 }
             });
         }
