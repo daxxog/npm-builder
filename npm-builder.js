@@ -105,18 +105,20 @@ if(argv.help) {
                                                 async.each(f, function(v, cb) {
                                                     if(!packRead(v) && v.indexOf('.git') !== 0) {
                                                         var fn = Mustache.render(mSet + v, template);
-                                                        
+
                                                         fs.readFile(v, 'utf8', function(err, data) {
                                                             if(err) {
                                                                 cb(err);
                                                             } else {
-                                                                spawn('rm', [v]);
-                                                                
-                                                                fs.writeFile(fn, Mustache.render(data, template), 'utf8', function(err) {
-                                                                    if(err) {
-                                                                        cb(err);
-                                                                    } else {
-                                                                        cb();
+                                                                spawn('rm', [v]).on('exit', function(code) { //remove old files THEN >>
+                                                                    if(code === 0) {
+                                                                        fs.writeFile(fn, Mustache.render(data, template), 'utf8', function(err) {
+                                                                            if(err) {
+                                                                                cb(err);
+                                                                            } else {
+                                                                                cb();
+                                                                            }
+                                                                        });
                                                                     }
                                                                 });
                                                             }
