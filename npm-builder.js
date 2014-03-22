@@ -35,6 +35,19 @@ var opt = require('optimist')
         packRead = sf.is(['package.json', 'README.md', '.git']),
         mSet = '{{=y- -x=}}';
 
+var issh = function(fn) {
+    var s, l;
+
+    if((typeof fn == 'string') && (fn.length > 3)) {
+        s = fn.split('');
+        l = s.length;
+
+        return ((s[l - 3] === '.') && (s[l - 2] === 's') && (s[l - 1] === 'h'));
+    } else {
+        return false;
+    }
+};
+
 if(argv.help) {
     opt.showHelp();
 } else {
@@ -115,6 +128,8 @@ if(argv.help) {
                                                                         fs.writeFile(fn, Mustache.render(data, template), 'utf8', function(err) {
                                                                             if(err) {
                                                                                 cb(err);
+                                                                            } else if(issh(v)) {
+                                                                                fs.chmod(v, 0755, cb); //make sh files executable
                                                                             } else {
                                                                                 cb();
                                                                             }
@@ -142,8 +157,6 @@ if(argv.help) {
                                     });
                                 }
                             });
-                            
-                            rm.stderr.pipe(process.stdout);
                         } else {
                             console.log('Error code: ', err);
                         }
