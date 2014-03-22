@@ -31,6 +31,7 @@ var opt = require('optimist')
     fs = require('fs');
 
     var link = 'https://github.com/' + argv.u + '/' + argv.t,
+        gi = 'https://raw.githubusercontent.com/' + argv.u + '/' + argv.t + '/master/.gitignore',
         tarball = link + '/tarball/master',
         packRead = sf.is(['package.json', 'README.md', '.git']),
         mSet = '{{=y- -x=}}';
@@ -78,7 +79,7 @@ if(argv.help) {
                 if(!err && files.length === 3) {
                     async.each(glob('*/*', {sync: true}), function(file, cb) {
                         var cp = spawn('cp', ['-r', file, '.']);
-                            
+
                         cp.on('exit', function(code) {
                             if(code === 0) {
                                 cb();
@@ -91,7 +92,9 @@ if(argv.help) {
                     }, function(err) {
                         if(!err) {
                             var rm = spawn('rm', ['-rf', packRead(files[0]) ? (packRead(files[1]) ? files[2] : files[1]) : files[0]]);
-                            
+
+                            spawn('wget', [gi]);
+
                             rm.on('exit', function(code) {
                                 if(code === 0) {
                                     async.parallel({
