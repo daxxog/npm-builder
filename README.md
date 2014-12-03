@@ -7,9 +7,9 @@ Install
 -------
 stable
 ```bash
-npm install npm-builder
+npm install -g npm-builder
 ```
 edge
 ```bash
-npm install https://github.com/daxxog/npm-builder/tarball/master
+npm install -g https://github.com/daxxog/npm-builder/tarball/master
 ```
