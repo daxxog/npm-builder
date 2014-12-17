@@ -32,6 +32,7 @@ var opt = require('optimist')
 
     var link = 'https://github.com/' + argv.u + '/' + argv.t,
         gi = 'https://raw.githubusercontent.com/' + argv.u + '/' + argv.t + '/master/.gitignore',
+        travis = 'https://raw.githubusercontent.com/' + argv.u + '/' + argv.t + '/master/.travis.yml',
         tarball = link + '/tarball/master',
         packRead = sf.is(['package.json', 'README.md', '.git']),
         mSet = '{{=y- -x=}}';
@@ -94,6 +95,7 @@ if(argv.help) {
                             var rm = spawn('rm', ['-rf', packRead(files[0]) ? (packRead(files[1]) ? files[2] : files[1]) : files[0]]);
 
                             spawn('wget', [gi]);
+                            spawn('wget', [travis]);
 
                             rm.on('exit', function(code) {
                                 if(code === 0) {
