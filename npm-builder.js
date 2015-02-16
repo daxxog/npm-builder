@@ -59,7 +59,14 @@ if(argv.help) {
             "Name": (function(str) {
                 var f = str.charAt(0).toUpperCase();
                 return f + str.substr(1);
-            })(S(rdMe[0]).camelize().s), //1337 name
+            })(S(function(firstLine) {
+                var chars = firstLine.split('');
+                
+                chars.shift();
+                chars.shift();
+
+                return chars.join('');
+            }(rdMe[0])).camelize().s), //1337 name
             "description": rdMe[2],
             "user": argv.u
         },
