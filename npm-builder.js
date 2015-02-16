@@ -61,9 +61,9 @@ if(argv.help) {
                 return f + str.substr(1);
             })(S(function(firstLine) {
                 var chars = firstLine.split('');
-                
-                chars.shift();
-                chars.shift();
+
+                console.log(chars.shift());
+                console.log(chars.shift());
 
                 return chars.join('');
             }(rdMe[0])).camelize().s), //1337 name
