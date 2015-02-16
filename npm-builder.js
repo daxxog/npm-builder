@@ -54,19 +54,20 @@ if(argv.help) {
     opt.showHelp();
 } else {
     var rdMe = S(fs.readFileSync('README.md', 'utf8')).lines(),
+        firstLine = (function(firstLine) {
+                var chars = firstLine.split('');
+
+                chars.shift();
+                chars.shift();
+
+                return chars.join('');
+            }(rdMe[0])),
         template = {
-            "name": rdMe[0],
+            "name": firstLine,
             "Name": (function(str) {
                 var f = str.charAt(0).toUpperCase();
                 return f + str.substr(1);
-            })(S(function(firstLine) {
-                var chars = firstLine.split('');
-
-                console.log(chars.shift());
-                console.log(chars.shift());
-
-                return chars.join('');
-            }(rdMe[0])).camelize().s), //1337 name
+            })(S(firstLine).camelize().s), //1337 name
             "description": rdMe[2],
             "user": argv.u
         },
