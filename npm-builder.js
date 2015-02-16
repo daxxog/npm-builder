@@ -60,7 +60,7 @@ if(argv.help) {
                 var f = str.charAt(0).toUpperCase();
                 return f + str.substr(1);
             })(S(rdMe[0]).camelize().s), //1337 name
-            "description": rdMe[3],
+            "description": rdMe[2],
             "user": argv.u
         },
         req = request(tarball),
