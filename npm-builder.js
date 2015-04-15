@@ -100,74 +100,105 @@ if(argv.help) {
                         cp.stderr.pipe(process.stdout);
                     }, function(err) {
                         if(!err) {
-                            var rm = spawn('rm', ['-rf', packRead(files[0]) ? (packRead(files[1]) ? files[2] : files[1]) : files[0]]);
+                            var rm = spawn('rm', ['-rf', packRead(files[0]) ? (packRead(files[1]) ? files[2] : files[1]) : files[0]]),
+                                wgi = spawn('wget', [gi]),
+                                wtravis = spawn('wget', [travis]);
 
-                            spawn('wget', [gi]);
-                            spawn('wget', [travis]);
+                            async.parallel({
+                                'rm': function(cb) {
+                                    rm.on('exit', function(code) {
+                                        if(code === 0) {
+                                            cb();
+                                        } else {
+                                            cb('rm error')
+                                        }
+                                    });
+                                },
+                                'wgi': function(cb) {
+                                    wgi.on('exit', function(code) {
+                                        if(code === 0) {
+                                            cb();
+                                        } else {
+                                            cb('wget[gi] error')
+                                        }
+                                    });
+                                },
+                                'wtravis': function(cb) {
+                                    wtravis.on('exit', function(code) {
+                                        if(code === 0) {
+                                            cb();
+                                        } else {
+                                            cb('wget[travis] error')
+                                        }
+                                    });
+                                },
+                                'gitignore': ['rm', 'wgi', function(cb) {
+                                    fs.readFile('.gitignore', 'utf8', function(err, data) {
+                                        if(err) {
+                                            cb(err);
+                                        } else {
+                                            fs.writeFile('.gitignore', Mustache.render(data, template), 'utf8', cb);
+                                        }
+                                    });
+                                }],
+                                'readme': ['rm', function(cb) {
+                                    fs.readFile('README.md', 'utf8', function(err, data) {
+                                        if(err) {
+                                            cb(err);
+                                        } else {
+                                            fs.writeFile('README.md', Mustache.render(data, template), 'utf8', cb);
+                                        }
+                                    });
+                                }],
+                                'package': ['rm', function(cb) {
+                                    fs.readFile('package.json', 'utf8', function(err, data) {
+                                        if(err) {
+                                            cb(err);
+                                        } else {
+                                            fs.writeFile('package.json', Mustache.render(data, template), 'utf8', cb);
+                                        }
+                                    });
+                                }],
+                                'walker': ['rm', function(cb) {
+                                    file.walk('.', function(err, d, dd, f) {
+                                        async.each(f, function(v, cb) {
+                                            if(!packRead(v) && v.indexOf('.git') !== 0) {
+                                                var fn = Mustache.render(mSet + v, template);
 
-                            rm.on('exit', function(code) {
-                                if(code === 0) {
-                                    async.parallel({
-                                        'readme': function(cb) {
-                                            fs.readFile('README.md', 'utf8', function(err, data) {
-                                                if(err) {
-                                                    cb(err);
-                                                } else {
-                                                    fs.writeFile('README.md', Mustache.render(data, template), 'utf8', cb);
-                                                }
-                                            });
-                                        },
-                                        'package': function(cb) {
-                                            fs.readFile('package.json', 'utf8', function(err, data) {
-                                                if(err) {
-                                                    cb(err);
-                                                } else {
-                                                    fs.writeFile('package.json', Mustache.render(data, template), 'utf8', cb);
-                                                }
-                                            });
-                                        },
-                                        'walker': function(cb) {
-                                            file.walk('.', function(err, d, dd, f) {
-                                                async.each(f, function(v, cb) {
-                                                    if(!packRead(v) && v.indexOf('.git') !== 0) {
-                                                        var fn = Mustache.render(mSet + v, template);
-
-                                                        fs.readFile(v, 'utf8', function(err, data) {
-                                                            if(err) {
-                                                                cb(err);
-                                                            } else {
-                                                                spawn('rm', [v]).on('exit', function(code) { //remove old files THEN >>
-                                                                    if(code === 0) {
-                                                                        fs.writeFile(fn, Mustache.render(data, template), 'utf8', function(err) {
-                                                                            if(err) {
-                                                                                cb(err);
-                                                                            } else if(issh(v)) {
-                                                                                fs.chmod(v, 0755, cb); //make sh files executable
-                                                                            } else {
-                                                                                cb();
-                                                                            }
-                                                                        });
+                                                fs.readFile(v, 'utf8', function(err, data) {
+                                                    if(err) {
+                                                        cb(err);
+                                                    } else {
+                                                        spawn('rm', [v]).on('exit', function(code) { //remove old files THEN >>
+                                                            if(code === 0) {
+                                                                fs.writeFile(fn, Mustache.render(data, template), 'utf8', function(err) {
+                                                                    if(err) {
+                                                                        cb(err);
+                                                                    } else if(issh(v)) {
+                                                                        fs.chmod(v, 0755, cb); //make sh files executable
+                                                                    } else {
+                                                                        cb();
                                                                     }
                                                                 });
                                                             }
                                                         });
-                                                    } else {
-                                                        cb();
-                                                    }
-                                                }, function(err) {
-                                                    if(err) {
-                                                        console.error(err);
                                                     }
                                                 });
-                                            });
-                                            
-                                            cb();
-                                        }
-                                    }, function(err) {
-                                        if(err) {
-                                            console.error(err);
-                                        }
+                                            } else {
+                                                cb();
+                                            }
+                                        }, function(err) {
+                                            if(err) {
+                                                console.error(err);
+                                            }
+                                        });
                                     });
+                                    
+                                    cb();
+                                }]
+                            }, function(err) {
+                                if(err) {
+                                    console.error(err);
                                 }
                             });
                         } else {
