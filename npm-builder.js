@@ -104,7 +104,7 @@ if(argv.help) {
                                 wgi = spawn('wget', [gi]),
                                 wtravis = spawn('wget', [travis]);
 
-                            async.parallel({
+                            async.auto({
                                 'rm': function(cb) {
                                     rm.on('exit', function(code) {
                                         if(code === 0) {
