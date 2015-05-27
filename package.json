@@ -1,30 +1,37 @@
 {
-    "name"        : "npm-builder",
-    "description" : "Stop the copy paste madness. Set up your repo with one command.",
-    "homepage"    : "https://github.com/daxxog/npm-builder",
-    "main"        : "npm-builder.js",
-    "version"     : "1.2.0",
-    "engines": { "node" : ">=0.10.33" },
-    "maintainers": [{
-        "name"  : "David Volm",
-        "email" : "david@volminator.com",
-        "web"   : "http://daxxog.com/"
-    }],
-    "repositories": [{
-        "type" : "git",
-        "url"  : "https://github.com/daxxog/npm-builder.git"
-    }],
-    "dependencies": {
-        "string": "https://github.com/daxxog/string.js/tarball/fork1",
-        "switch-factory": "*",
-        "file": "*",
-        "mustache": "*",
-        "glob": "*",
-        "async": "*",
-        "request": "*",
-        "optimist": "*"
-    },
-    "bin": {
-        "npm-builder" : "./bin/npm-builder"
+  "name": "npm-builder",
+  "description": "Stop the copy paste madness. Set up your repo with one command.",
+  "homepage": "https://github.com/daxxog/npm-builder",
+  "main": "npm-builder.js",
+  "version": "1.3.0",
+  "engines": {
+    "node": ">=0.10.33"
+  },
+  "maintainers": [
+    {
+      "name": "David Volm",
+      "email": "david@volminator.com",
+      "web": "http://daxxog.com/"
     }
+  ],
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/daxxog/npm-builder.git"
+    }
+  ],
+  "dependencies": {
+    "async": "*",
+    "file": "*",
+    "glob": "*",
+    "homedir": "^0.6.0",
+    "mustache": "*",
+    "optimist": "*",
+    "request": "*",
+    "string": "https://github.com/daxxog/string.js/tarball/fork1",
+    "switch-factory": "*"
+  },
+  "bin": {
+    "npm-builder": "./bin/npm-builder"
+  }
 }

@@ -14,19 +14,24 @@ var opt = require('optimist')
     .describe('t', 'Template repo name.')
 	.default('t', 'npm-builder-template')
 
+    .boolean('nocache')
+    .describe('nocache', 'Disable config cache.')
+
 	.boolean('help')
 	.describe('help', 'Show this page.')
-	.usage('npm-builder -u [ username ]  -t [ template ]'),
+	.usage('npm-builder -u [ username ]  -t [ template ] --nocache')
 
 	argv = opt.argv,
     
     S = require('string'),
     sf = require('switch-factory'),
     file = require('file'),
+    path = require('path'),
     Mustache = require('mustache'),
     glob = require('glob'),
     async = require('async'),
     request = require('request'),
+    homedir = require('homedir'),
     spawn = require('child_process').spawn,
     fs = require('fs');
 
@@ -35,7 +40,9 @@ var opt = require('optimist')
         travis = 'https://raw.githubusercontent.com/' + argv.u + '/' + argv.t + '/master/.travis.yml',
         tarball = link + '/tarball/master',
         packRead = sf.is(['package.json', 'README.md', '.git']),
-        mSet = '{{=y- -x=}}';
+        mSet = '{{=y- -x=}}',
+        cache = !argv.nocache,
+        cacheDir = path.join(homedir(), '.npm-builder');
 
 var issh = function(fn) {
     var s, l;
@@ -49,6 +56,38 @@ var issh = function(fn) {
         return false;
     }
 };
+
+var cached = function(url, cb) {
+    var urlCached = path.join(cacheDir, S(url).slugify().s),
+        useCb = typeof cb === 'function',
+        req;
+
+    if(cache && fs.existsSync(urlCached)) {
+        if(useCb) {
+            fs.readFile(urlCached, cb);
+        } else {
+            req = fs.createReadStream(urlCached);
+        }
+    } else {
+        req = request(url, function(err, res, body) {
+            if(useCb) {
+                cb(err, new Buffer(body, 'utf8'));
+            }
+        });
+
+        if(cache) {
+            req.pipe(fs.createWriteStream(urlCached));
+        }
+    }
+
+    return req;
+};
+
+if(cache) {
+    if(!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir);
+    }
+}
 
 if(argv.help) {
     opt.showHelp();
@@ -71,9 +110,9 @@ if(argv.help) {
             "description": rdMe[1],
             "user": argv.u
         },
-        req = request(tarball),
+        req = cached(tarball),
         tar = spawn('tar', ['-zx']);
-    
+
     tar.on('exit', function(code) {
         if(code === 0) {
             fs.readdir('.', function(err, files) {
@@ -101,8 +140,7 @@ if(argv.help) {
                     }, function(err) {
                         if(!err) {
                             var rm = spawn('rm', ['-rf', packRead(files[0]) ? (packRead(files[1]) ? files[2] : files[1]) : files[0]]),
-                                wgi = spawn('wget', [gi]),
-                                wtravis = spawn('wget', [travis]);
+                                cgi, ctravis;
 
                             async.auto({
                                 'rm': function(cb) {
@@ -114,32 +152,31 @@ if(argv.help) {
                                         }
                                     });
                                 },
-                                'wgi': function(cb) {
-                                    wgi.on('exit', function(code) {
-                                        if(code === 0) {
-                                            cb();
-                                        } else {
-                                            cb('wget[gi] error')
-                                        }
-                                    });
-                                },
-                                'wtravis': function(cb) {
-                                    wtravis.on('exit', function(code) {
-                                        if(code === 0) {
-                                            cb();
-                                        } else {
-                                            cb('wget[travis] error')
-                                        }
-                                    });
-                                },
-                                'gitignore': ['rm', 'wgi', function(cb) {
-                                    fs.readFile('.gitignore', 'utf8', function(err, data) {
+                                'cgi': function(cb) {
+                                    cached(gi, function(err, data) {
                                         if(err) {
                                             cb(err);
                                         } else {
-                                            fs.writeFile('.gitignore', Mustache.render(data, template), 'utf8', cb);
+                                            cgi = data;
+                                            cb();
                                         }
                                     });
+                                },
+                                'ctravis': function(cb) {
+                                  cached(travis, function(err, data) {
+                                        if(err) {
+                                            cb(err);
+                                        } else {
+                                            ctravis = data;
+                                            cb();
+                                        }
+                                    });
+                                },
+                                'travis': ['rm', 'ctravis', function(cb) {
+                                    fs.writeFile('.travis.yml', ctravis, 'utf8', cb);
+                                }],
+                                'gitignore': ['rm', 'cgi', function(cb) {
+                                    fs.writeFile('.gitignore', Mustache.render(cgi.toString('utf8'), template), 'utf8', cb);
                                 }],
                                 'readme': ['rm', function(cb) {
                                     fs.readFile('README.md', 'utf8', function(err, data) {
