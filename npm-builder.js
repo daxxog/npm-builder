@@ -35,9 +35,15 @@ var opt = require('optimist')
     spawn = require('child_process').spawn,
     fs = require('fs');
 
-    var link = 'https://github.com/' + argv.u + '/' + argv.t,
-        gi = 'https://raw.githubusercontent.com/' + argv.u + '/' + argv.t + '/master/.gitignore',
-        travis = 'https://raw.githubusercontent.com/' + argv.u + '/' + argv.t + '/master/.travis.yml',
+    var t = argv.t;
+
+    if(t !== 'npm-builder-template' && S(t).startsWith('~')) {
+        t = 'nbt-' + t;
+    }
+
+    var link = 'https://github.com/' + argv.u + '/' + t,
+        gi = 'https://raw.githubusercontent.com/' + argv.u + '/' + t + '/master/.gitignore',
+        travis = 'https://raw.githubusercontent.com/' + argv.u + '/' + t + '/master/.travis.yml',
         tarball = link + '/tarball/master',
         packRead = sf.is(['package.json', 'README.md', '.git']),
         mSet = '{{=y- -x=}}',
