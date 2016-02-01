@@ -123,7 +123,7 @@ if(argv.help) {
         if(code === 0) {
             fs.readdir('.', function(err, files) {
                 files = (function(files) { //scrub garbage from folder
-                    var scrub = sf.is(['.DS_Store', 'Thumbs.db']); //stuff to scrub
+                    var scrub = sf.is(['.DS_Store', 'Thumbs.db', '.c9']); //stuff to scrub
 
                     return files.filter(function(file) {
                         return !scrub(file);
