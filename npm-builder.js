@@ -114,7 +114,8 @@ if(argv.help) {
                 return f + str.substr(1);
             })(S(firstLine).camelize().s), //1337 name
             "description": rdMe[1],
-            "user": argv.u
+            "user": argv.u,
+            "year": (new Date()).getFullYear().toString()
         },
         req = cached(tarball),
         tar = spawn('tar', ['-zx']);
